@@ -66,6 +66,12 @@ class Blockchain {
 
         return new Promise(async (resolve, reject) => {
             try {
+                let errorLog = await self.validateChain();
+
+                if(errorLog.length !== 0) {
+                    reject(new Error("Block can not be added because chain is not valid"));
+                }
+
                 self.height++;
 
                 if(self.height > 0) {
@@ -154,7 +160,7 @@ class Blockchain {
         let self = this;
         return new Promise((resolve, reject) => {
            try {
-                const block = self.chain.filter(p => p.hash === hash)[0];
+                const block = self.chain.find(b => b.hash === hash)[0];
                 resolve(block);
            } catch(err) {
                 reject(err);
@@ -169,13 +175,13 @@ class Blockchain {
      */
     getBlockByHeight(height) {
         let self = this;
-        return new Promise((resolve, reject) => {
-            let block = self.chain.filter(p => p.height === height)[0];
-            if(block){
+        return new Promise((resolve, reject) => {            
+            try {
+                const block = self.chain.find(b => b.height=== height)[0];
                 resolve(block);
-            } else {
-                resolve(null);
-            }
+           } catch(err) {
+                reject(err);
+           }
         });
     }
 
@@ -218,19 +224,19 @@ class Blockchain {
             try {
 
                 for(let i = 0 ; i < self.chain.length ; i++) {
-                    const block = self.chain.length[i];
+                    const currBlock = self.chain.length[i];
 
-                    if(!(await block.validate())) {
+                    if(!(await currBlock.validate())) {
                         errorLog.push({
-                            block: block,
+                            block: currBlock,
                             message: 'Block validation failed'
                         });
                     }
 
                     if(i !== 0) {
-                        if(block.previousBlockHash !== self.chain[i - 1].hash) {
+                        if(currBlock.previousBlockHash !== self.chain[i - 1].hash) {
                             errorLog.push({
-                                block: block,
+                                block: currBlock,
                                 message: 'Block not linked to previous block'
                             });
                         }
