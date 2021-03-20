@@ -223,8 +223,8 @@ class Blockchain {
         return new Promise(async (resolve, reject) => {
             try {
 
-                for(let i = 0 ; i < self.chain.length ; i++) {
-                    const currBlock = self.chain.length[i];
+                for(let i = 0 ; i < self.chain.height ; i++) {
+                    const currBlock = self.chain[i];
 
                     if(!(await currBlock.validate())) {
                         errorLog.push({
